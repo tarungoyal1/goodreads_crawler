@@ -29,6 +29,7 @@ class GoodreadsCralwerPipeline:
         else:
             # print('Book already scraped having url = {}'.format(item['book_url']))
             return False
+        return item
 
 
 
@@ -47,6 +48,8 @@ class BookUrlPipeline:
     def process_item(self, item, spider):
         if not self.col_nfbookurls.find_one({'url': item['url']}):
             if  self.col_allbookurls.update_one(item,{'$set':item},upsert=True):
-                return True
                 # print('New book url inserted, url ={}'.format(item['url']))
-        return False
+                return True
+        else:
+            return False
+        return item

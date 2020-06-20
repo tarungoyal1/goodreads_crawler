@@ -6,7 +6,7 @@ def get_urls():
     db = client['books']
     col_bookurls = db['gr_book_urls']
     url_list = []
-    batch_size = 100
+    batch_size = 1000
     while 1:
         cursor = col_bookurls.find(filter={'status': 'pending'}).limit(batch_size)
         for item in cursor:

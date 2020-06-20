@@ -25,7 +25,7 @@ class GetBookDetailsSpider(scrapy.Spider):
     # start_urls = ['https://www.goodreads.com/book/show/9556239-heads-you-lose']
 
     urls = []
-    batch_size = 10
+    batch_size = 1000
 
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs):
