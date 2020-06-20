@@ -12,11 +12,20 @@ import logging
 
 class GetBookDetailsSpider(scrapy.Spider):
     name = 'get_book_details'
+
+    # Bind this spider with it's own separate pipeline (GoodreadsCralwerPipeline)
+    custom_settings = {
+        'ITEM_PIPELINES': {
+            'goodreads_cralwer.pipelines.GoodreadsCralwerPipeline': 400
+        }
+    }
+
+
     allowed_domains = ['www.goodreads.com']
     # start_urls = ['https://www.goodreads.com/book/show/9556239-heads-you-lose']
 
     urls = []
-    batch_size = 1000
+    batch_size = 10
 
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs):
@@ -28,8 +37,8 @@ class GetBookDetailsSpider(scrapy.Spider):
         self.crawler = crawler
 
     def start_requests(self):
-        url_batch = get_urls()
-        urls = next(url_batch)
+        urls_batch = get_urls()
+        urls = next(urls_batch)
         for i in range(self.batch_size):
             yield scrapy.Request(urls.pop(0))
 
@@ -117,6 +126,8 @@ class GetBookDetailsSpider(scrapy.Spider):
         pure_html=''
         soup = BeautifulSoup(response.body, 'lxml')
         des = soup.find("div", {"id": "description"}).find("span", {"style":"display:none"}).contents
+        if des is None:
+            des = soup.find("div", {"id": "description"}).find("span").contents
         for content in des:
             stringified_content = str(content)
             if isinstance(content, NavigableString):

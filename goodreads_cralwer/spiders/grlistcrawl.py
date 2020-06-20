@@ -11,7 +11,7 @@ import re
 class GrlistcrawlSpider(CrawlSpider):
     name = 'grlistcrawl'
 
-    #Bind this spider with it's own separate pipeline
+    #Bind this spider with it's own separate pipeline (BookUrlPipeline)
     custom_settings = {
         'ITEM_PIPELINES': {
             'goodreads_cralwer.pipelines.BookUrlPipeline': 400
@@ -31,5 +31,7 @@ class GrlistcrawlSpider(CrawlSpider):
             'url': '',
             'status':'pending'
         }
-        book_url['url'] = response.urljoin(response.xpath("//a[@class='bookTitle']/@href").get())
-        yield book_url
+
+        for url in response.xpath("//table[contains(@class, 'tableList')]//tr"):
+            book_url['url'] = response.urljoin(url.xpath(".//a[@class='bookTitle']/@href").get())
+            yield book_url
