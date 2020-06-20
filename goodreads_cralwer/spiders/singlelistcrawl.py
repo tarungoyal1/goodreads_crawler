@@ -7,6 +7,13 @@ class SinglelistcrawlSpider(scrapy.Spider):
     allowed_domains = ['www.goodreads.com']
     start_urls = ['https://www.goodreads.com/list/show/10762.Best_Book_Boyfriends']
 
+    # Bind this spider with it's own separate pipeline (BookUrlPipeline)
+    custom_settings = {
+        'ITEM_PIPELINES': {
+            'goodreads_cralwer.pipelines.BookUrlPipeline': 400
+        }
+    }
+
     def parse(self, response):
         book_url = {
             'url': '',
