@@ -9,7 +9,8 @@ class GetlisturlsSpider(scrapy.Spider):
     # start_urls = ['https://www.goodreads.com/list/tag/non-fiction']
     # start_urls = ['https://www.goodreads.com/list/tag/history']
     # start_urls = ['https://www.goodreads.com/list/tag/biography']
-    start_urls = ['https://www.goodreads.com/list/tag/contemporary']
+    # start_urls = ['https://www.goodreads.com/list/tag/contemporary']
+    start_urls = ['https://www.goodreads.com/list/tag/sci-fi']
 
     # Bind this spider with it's own separate pipeline (ListUrlPipeline)
     custom_settings = {
