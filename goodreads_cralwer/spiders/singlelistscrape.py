@@ -43,9 +43,10 @@ class SinglelistcrawlSpider(scrapy.Spider):
         #batch size of list_urls = 30
         list_url_batch = get_listurl()
         urls = next(list_url_batch)
-        for i in range(self.batch_size):
+        for i in range(30):
             list_url = urls.pop(0)
             yield scrapy.Request(list_url)
+            break
 
 
     def parse(self, response):
@@ -63,6 +64,7 @@ class SinglelistcrawlSpider(scrapy.Spider):
             yield response.follow(next_page, callback=self.parse)
         else:
             # means reached the last page in pagination
+            print(response.request.url)
             if updateListStatus(response.request.url):
                 print("List fully scraped and status changed to 'done', list_url = {}".format(response.request.url))
 
