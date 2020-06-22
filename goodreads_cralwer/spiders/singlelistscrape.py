@@ -15,15 +15,13 @@ class SinglelistcrawlSpider(scrapy.Spider):
         }
     }
 
-    start_urls = ['https://www.goodreads.com/list/show/47.Best_Dystopian_and_Post_Apocalyptic_Fiction?page=35']
-
-    # def start_requests(self):
-    #     #batch size of list_urls = 2
-    #     list_url_batch = get_listurl()
-    #     urls = next(list_url_batch)
-    #     for i in range(2):
-    #         list_url = urls.pop(0)
-    #         yield scrapy.Request(list_url)
+    def start_requests(self):
+        #batch size of list_urls = 2
+        list_url_batch = get_listurl()
+        urls = next(list_url_batch)
+        for i in range(2):
+            list_url = urls.pop(0)
+            yield scrapy.Request(list_url)
 
 
     def parse(self, response):
