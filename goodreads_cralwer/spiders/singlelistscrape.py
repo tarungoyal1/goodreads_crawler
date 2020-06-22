@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import scrapy
 from .geturls import get_listurl, updateListStatus
+import logging
 
 
 class SinglelistcrawlSpider(scrapy.Spider):
@@ -13,12 +14,37 @@ class SinglelistcrawlSpider(scrapy.Spider):
             'goodreads_cralwer.pipelines.BookUrlPipeline': 400
         }
     }
-    list_url = ''
+
+    @classmethod
+    def from_crawler(cls, crawler, *args, **kwargs):
+        spider = cls(crawler, *args, **kwargs)
+        crawler.signals.connect(spider.idle_consume, scrapy.signals.spider_idle)
+        return spider
+
+    def __init__(self, crawler):
+        self.crawler = crawler
+
+    def idle_consume(self):
+        """
+        Everytime spider is about to close check our urls
+        buffer if we have something left to crawl
+        """
+        reqs = self.start_requests()
+        if not reqs:
+            return
+        logging.info('Consuming batch')
+        for req in reqs:
+            # print(req)
+            self.crawler.engine.schedule(req, self)
+        raise scrapy.exceptions.DontCloseSpider
 
     def start_requests(self):
-        list_url = get_listurl()
-        self.list_url = list_url
-        yield scrapy.Request(list_url)
+        #batch size of list_urls = 30
+        list_url_batch = get_listurl()
+        urls = next(list_url_batch)
+        for i in range(self.batch_size):
+            self.list_url = urls.pop(0)
+            yield scrapy.Request(self.list_url)
 
 
     def parse(self, response):
@@ -37,7 +63,7 @@ class SinglelistcrawlSpider(scrapy.Spider):
         else:
             # means reached the last page in pagination
             if updateListStatus(self.list_url):
-                print("List fully scraped and status changed to 'done'")
+                print("List fully scraped and status changed to 'done', list_url = {}".format(self.list_url))
 
 
 
