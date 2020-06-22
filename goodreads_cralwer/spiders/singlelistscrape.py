@@ -15,13 +15,13 @@ class SinglelistcrawlSpider(scrapy.Spider):
         }
     }
 
-    start_urls = []
+    start_urls = get_listurl()
 
-    def my_start_urls(self):
-        #batch size of list_urls = 2
-        list_url_batch = get_listurl()
-        urls = next(list_url_batch)
-        self.start_urls = urls
+    # def my_start_urls(self):
+    #     #batch size of list_urls = 2
+    #     list_url_batch = get_listurl()
+    #     urls = next(list_url_batch)
+    #     self.start_urls = urls
 
 
     def parse(self, response):
