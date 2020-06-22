@@ -4,7 +4,7 @@ from pymongo import MongoClient
 def get_urls():
     client = MongoClient()
     db = client['books']
-    col_bookurls = db['all_book_urls']
+    col_bookurls = db['book_urls']
     url_list = []
     batch_size = 100
     while 1:
