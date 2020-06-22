@@ -14,7 +14,7 @@ class GoodreadsCralwerPipeline:
         self.client = MongoClient()
         self.db = self.client['books']
         self.col_bookinfo = self.db['book_info']
-        self.col_allbookurls = self.db['gr_book_urls']
+        self.col_allbookurls = self.db['book_urls']
 
     def close_spider(self, spider):
         self.client.close()
@@ -39,7 +39,6 @@ class BookUrlPipeline:
         self.client = MongoClient()
         self.db = self.client['books']
         self.col_bookurls = self.db['book_urls'] # Old collection having book urls of non-fiction
-        self.col_allbookurls = self.db['all_book_urls'] # New collection having all book urls except non-fiction
 
     def close_spider(self, spider):
         self.client.close()
