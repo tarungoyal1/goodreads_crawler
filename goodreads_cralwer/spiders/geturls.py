@@ -14,16 +14,15 @@ def get_urls():
         yield url_list
 
 def get_listurl():
+    # it just send 2 list urls which is enough, because they follow pagination
     client = MongoClient()
     db = client['books']
     col_list_urls = db['list_urls']
     url_list = []
-    while 1:
-        url_list.clear()
-        cursor = col_list_urls.find(filter={'status': 'pending'}).limit(30)
-        for item in cursor:
-            url_list.append(item['list_url'])
-        yield url_list
+    cursor = col_list_urls.find(filter={'status': 'pending'}).limit(2)
+    for item in cursor:
+        url_list.append(item['list_url'])
+    yield url_list
 
 def updateListStatus(list_url):
     client = MongoClient()

@@ -15,38 +15,15 @@ class SinglelistcrawlSpider(scrapy.Spider):
         }
     }
 
-    @classmethod
-    def from_crawler(cls, crawler, *args, **kwargs):
-        spider = cls(crawler, *args, **kwargs)
-        crawler.signals.connect(spider.idle_consume, scrapy.signals.spider_idle)
-        return spider
+    start_urls = ['https://www.goodreads.com/list/show/47.Best_Dystopian_and_Post_Apocalyptic_Fiction?page=35']
 
-    def __init__(self, crawler):
-        self.crawler = crawler
-
-    def idle_consume(self):
-        """
-        Everytime spider is about to close check our urls
-        buffer if we have something left to crawl
-        """
-        reqs = self.start_requests()
-        if not reqs:
-            return
-        logging.info('Consuming batch')
-        for req in reqs:
-            # print(req)
-            self.crawler.engine.schedule(req, self)
-        raise scrapy.exceptions.DontCloseSpider
-
-
-    def start_requests(self):
-        #batch size of list_urls = 30
-        list_url_batch = get_listurl()
-        urls = next(list_url_batch)
-        for i in range(30):
-            list_url = urls.pop(0)
-            yield scrapy.Request(list_url)
-            break
+    # def start_requests(self):
+    #     #batch size of list_urls = 2
+    #     list_url_batch = get_listurl()
+    #     urls = next(list_url_batch)
+    #     for i in range(2):
+    #         list_url = urls.pop(0)
+    #         yield scrapy.Request(list_url)
 
 
     def parse(self, response):
@@ -59,14 +36,14 @@ class SinglelistcrawlSpider(scrapy.Spider):
             book_url['url'] = response.urljoin(url.xpath(".//a[@class='bookTitle']/@href").get())
             yield book_url
 
-        next_page = response.xpath("//a[@class='next_page']/@href").get()
+        next_page = response.xpath("//div[@class='pagination']//a[@class='next_page']/@href").get()
         if next_page:
             yield response.follow(next_page, callback=self.parse)
         else:
             # means reached the last page in pagination
-            print(response.request.url)
-            if updateListStatus(response.request.url):
-                print("List fully scraped and status changed to 'done', list_url = {}".format(response.request.url))
+            last_url = response.request.url.partition('?')[0]
+            if updateListStatus(last_url):
+                print("List fully scraped and status changed to 'done', list_url = {}".format(last_url))
 
 
 
