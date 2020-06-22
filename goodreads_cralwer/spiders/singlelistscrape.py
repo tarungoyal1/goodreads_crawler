@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import scrapy
+from .geturls import get_listurl, updateListStatus
 
 
 class SinglelistcrawlSpider(scrapy.Spider):
     name = 'singlelistcrawl'
     allowed_domains = ['www.goodreads.com']
-    start_urls = ['https://www.goodreads.com/list/show/10762.Best_Book_Boyfriends']
 
     # Bind this spider with it's own separate pipeline (BookUrlPipeline)
     custom_settings = {
@@ -13,6 +13,13 @@ class SinglelistcrawlSpider(scrapy.Spider):
             'goodreads_cralwer.pipelines.BookUrlPipeline': 400
         }
     }
+    list_url = ''
+
+    def start_requests(self):
+        list_url = get_listurl()
+        self.list_url = list_url
+        yield scrapy.Request(list_url)
+
 
     def parse(self, response):
         book_url = {
@@ -27,4 +34,10 @@ class SinglelistcrawlSpider(scrapy.Spider):
         next_page = response.xpath("//a[@class='next_page']/@href").get()
         if next_page:
             yield response.follow(next_page, callback=self.parse)
+        else:
+            # means reached the last page in pagination
+            if updateListStatus(self.list_url):
+                print("List fully scraped and status changed to 'done'")
+
+
 

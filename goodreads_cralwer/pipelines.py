@@ -38,17 +38,16 @@ class BookUrlPipeline:
     def open_spider(self, spider):
         self.client = MongoClient()
         self.db = self.client['books']
-        self.col_nfbookurls = self.db['book_urls'] # Old collection having book urls of non-fiction
-        self.col_allbookurls = self.db['gr_book_urls'] # New collection having all book urls except non-fiction
-        self.col_bookinfo = self.db['book_info']
+        self.col_bookurls = self.db['book_urls'] # Old collection having book urls of non-fiction
+        self.col_allbookurls = self.db['all_book_urls'] # New collection having all book urls except non-fiction
 
     def close_spider(self, spider):
         self.client.close()
 
     def process_item(self, item, spider):
-        if not self.col_nfbookurls.find_one({'url': item['url']}):
-            if  self.col_allbookurls.update_one(item,{'$set':item},upsert=True):
-                # print('New book url inserted, url ={}'.format(item['url']))
+        if not self.col_bookurls.find_one({'url': item['url']}):
+            if  self.col_bookurls.update_one(item,{'$set':item},upsert=True):
+                print('New book url inserted, url ={}'.format(item['url']))
                 return True
         else:
             return False
