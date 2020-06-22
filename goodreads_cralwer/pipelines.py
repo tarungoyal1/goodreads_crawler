@@ -26,10 +26,10 @@ class GoodreadsCralwerPipeline:
                 if self.col_allbookurls.update_one({'url': item['book_url']}, {'$set': {'status': 'done'}},upsert=False).modified_count == 1:
                     # print('New book inserted and status updated, url  = {}'.format(item['book_url']))
                     return True
-        else:
+        elif self.col_allbookurls.update_one({'url': item['book_url']}, {'$set': {'status': 'done'}},upsert=False).modified_count == 1:
             # print('Book already scraped having url = {}'.format(item['book_url']))
-            return False
-        return item
+            return True
+        return False
 
 
 
@@ -51,7 +51,7 @@ class BookUrlPipeline:
                 return True
         else:
             return False
-        return item
+        return False
 
 #This pipeline is bound with spider = GetlisturlsSpider in getlisturls.py
 class GetListUrlPipeLine:
@@ -71,4 +71,4 @@ class GetListUrlPipeLine:
                 return True
         else:
             return False
-        return item
+        return False
