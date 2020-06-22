@@ -68,7 +68,7 @@ class GetListUrlPipeLine:
     def process_item(self, item, spider):
         if not self.col_listurls.find_one({'list_url': item['list_url']}):
             if  self.col_listurls.update_one(item,{'$set':item},upsert=True):
-                print('New list url inserted, url ={}'.format(item['url']))
+                print('New list url inserted, url ={}'.format(item['list_url']))
                 return True
         else:
             return False
