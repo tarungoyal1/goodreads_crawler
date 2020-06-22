@@ -7,7 +7,7 @@
 
 from pymongo import MongoClient
 
-#This pipelines is bound with spider = GetBookDetailsSpider in get_book_details.py
+#This pipeline is bound with spider = GetBookDetailsSpider in get_book_details.py
 class GoodreadsCralwerPipeline:
 
     def open_spider(self, spider):
@@ -33,7 +33,7 @@ class GoodreadsCralwerPipeline:
 
 
 
-#This pipelines is bound with spider = GrlistcrawlSpider in grlistcrawl.py
+#This pipeline is bound with spider = GrlistcrawlSpider in grlistcrawl.py
 class BookUrlPipeline:
     def open_spider(self, spider):
         self.client = MongoClient()
@@ -49,6 +49,26 @@ class BookUrlPipeline:
         if not self.col_nfbookurls.find_one({'url': item['url']}):
             if  self.col_allbookurls.update_one(item,{'$set':item},upsert=True):
                 # print('New book url inserted, url ={}'.format(item['url']))
+                return True
+        else:
+            return False
+        return item
+
+#This pipeline is bound with spider = GetlisturlsSpider in getlisturls.py
+class GetListUrlPipeLine:
+    def open_spider(self, spider):
+        self.client = MongoClient()
+        self.db = self.client['books']
+        self.col_listurls = self.db['list_urls']
+
+
+    def close_spider(self, spider):
+        self.client.close()
+
+    def process_item(self, item, spider):
+        if not self.col_listurls.find_one({'list_url': item['list_url']}):
+            if  self.col_listurls.update_one(item,{'$set':item},upsert=True):
+                print('New list url inserted, url ={}'.format(item['url']))
                 return True
         else:
             return False
