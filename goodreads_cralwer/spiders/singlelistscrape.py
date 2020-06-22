@@ -15,7 +15,35 @@ class SinglelistcrawlSpider(scrapy.Spider):
         }
     }
 
-    start_urls = get_listurl()
+
+    @classmethod
+    def from_crawler(cls, crawler, *args, **kwargs):
+        spider = cls(crawler, *args, **kwargs)
+        crawler.signals.connect(spider.idle_consume, scrapy.signals.spider_idle)
+        return spider
+
+    def __init__(self, crawler):
+        self.crawler = crawler
+
+    def start_requests(self):
+        urls_batch = get_listurl()
+        urls = next(urls_batch)
+        for i in range(1):
+            yield scrapy.Request(urls.pop(0))
+
+    def idle_consume(self):
+        """
+        Everytime spider is about to close check our urls
+        buffer if we have something left to crawl
+        """
+        reqs = self.start_requests()
+        if not reqs:
+            return
+        logging.info('Consuming batch')
+        for req in reqs:
+            # print(req)
+            self.crawler.engine.schedule(req, self)
+        raise scrapy.exceptions.DontCloseSpider
 
     # def my_start_urls(self):
     #     #batch size of list_urls = 2

@@ -4,5 +4,5 @@ from goodreads_cralwer.spiders.get_book_details import GetBookDetailsSpider
 
 process = CrawlerProcess()
 process.crawl(SinglelistcrawlSpider)
-process.crawl(GetBookDetailsSpider)
+# process.crawl(GetBookDetailsSpider)
 process.start()

@@ -19,10 +19,11 @@ def get_listurl():
     db = client['books']
     col_list_urls = db['list_urls']
     url_list = []
-    cursor = col_list_urls.find(filter={'status': 'pending'}).limit(1)
-    for item in cursor:
-        url_list.append(item['list_url'])
-    yield url_list
+    while 1:
+        cursor = col_list_urls.find(filter={'status': 'pending'}).limit(1)
+        for item in cursor:
+            url_list.append(item['list_url'])
+        yield url_list
 
 def updateListStatus(list_url):
     client = MongoClient()
