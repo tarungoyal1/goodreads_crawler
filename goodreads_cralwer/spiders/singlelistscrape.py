@@ -15,13 +15,13 @@ class SinglelistcrawlSpider(scrapy.Spider):
         }
     }
 
-    def start_requests(self):
+    start_urls = []
+
+    def my_start_urls(self):
         #batch size of list_urls = 2
         list_url_batch = get_listurl()
         urls = next(list_url_batch)
-        for i in range(2):
-            list_url = urls.pop(0)
-            yield scrapy.Request(list_url)
+        self.start_urls = urls
 
 
     def parse(self, response):
