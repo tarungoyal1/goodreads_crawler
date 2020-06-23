@@ -45,22 +45,19 @@ class SinglelistcrawlSpider(scrapy.Spider):
             self.crawler.engine.schedule(req, self)
         raise scrapy.exceptions.DontCloseSpider
 
-    # def my_start_urls(self):
-    #     #batch size of list_urls = 2
-    #     list_url_batch = get_listurl()
-    #     urls = next(list_url_batch)
-    #     self.start_urls = urls
-
 
     def parse(self, response):
-        book_url = {
-            'url': '',
-            'status': 'pending'
-        }
+        # book_url = {
+        #     'url': '',
+        #     'status': 'pending'
+        # }
+
+        scraped_book_urls = {'scraped_urls':[]}
 
         for url in response.xpath("//table[contains(@class, 'tableList')]//tr"):
-            book_url['url'] = response.urljoin(url.xpath(".//a[@class='bookTitle']/@href").get())
-            yield book_url
+            scraped_book_urls['scraped_urls'].append(response.urljoin(url.xpath(".//a[@class='bookTitle']/@href").get()))
+            # book_url['url'] = response.urljoin(url.xpath(".//a[@class='bookTitle']/@href").get())
+        yield scraped_book_urls
 
         next_page = response.xpath("//div[@class='pagination']//a[@class='next_page']/@href").get()
         if next_page:

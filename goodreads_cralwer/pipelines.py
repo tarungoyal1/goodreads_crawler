@@ -44,13 +44,46 @@ class BookUrlPipeline:
         self.client.close()
 
     def process_item(self, item, spider):
-        if not self.col_bookurls.find_one({'url': item['url']}):
-            if  self.col_bookurls.update_one(item,{'$set':item},upsert=True):
-                print('New book url inserted, url ={}'.format(item['url']))
+
+        #Returned 'item' is a dictionary containing a list of scraped urls on a single page of list inside key=  'scraped_urls'
+
+        # print(item['scraped_urls'])
+
+        #Effecient code with aggregation pipeline and use setDifference to get only non-existing book urls to be inserted
+
+        pipeline = [
+            { "$group": { "_id": 'null', 'values': { "$push": "$url" } } },
+            { "$project":
+                  { 'non_existing':
+                        { "$setDifference": [item['scraped_urls'], "$values"]}
+                  }
+            }
+        ]
+
+        non_exitng_urls = list(self.col_bookurls.aggregate(pipeline))[0]['non_existing']
+        count = len(non_exitng_urls)
+        # print(non_exitng_urls)
+
+        #Now you can bulk insert with just one query
+        if count>0:
+            if self.col_bookurls.insert_many([{'url': url, 'status':'pending'} for url in non_exitng_urls]):
+                print('Inserted {} new book urls'.format(count))
                 return True
-        else:
-            return False
         return False
+
+        #Achievement: Now, for every page of list there would only execute exactly 2 queries
+        # One for setDifference and other for bulk insert
+
+
+
+        #Ineffecient code because it checks for every url in a loop
+        # if not self.col_bookurls.find_one({'url': item['url']}):
+        #     if  self.col_bookurls.update_one(item,{'$set':item},upsert=True):
+        #         print('New book url inserted, url ={}'.format(item['url']))
+        #         return True
+        # else:
+        #     return False
+        # return False
 
 #This pipeline is bound with spider = GetlisturlsSpider in getlisturls.py
 class GetListUrlPipeLine:
